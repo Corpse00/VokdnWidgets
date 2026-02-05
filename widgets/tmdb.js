@@ -594,7 +594,8 @@ async function categories(params) {
 
 async function networks(params) {
   let api = `discover/tv`;
-  return await fetchData(api, params, "tv");
+  delete params.type;
+  return await fetchData(api, params);
 }
 
 async function companies(params) {
