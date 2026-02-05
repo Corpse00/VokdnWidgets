@@ -11,7 +11,6 @@ WidgetMetadata = {
       id: "nowPlaying",
       title: "Now Playing",
       functionName: "nowPlaying",
-      cacheDuration: 43200,
       params: [
         {
           name: "type",
@@ -49,7 +48,6 @@ WidgetMetadata = {
       id: "trending",
       title: "Trending",
       functionName: "trending",
-      cacheDuration: 43200,
       params: [
         {
           name: "time_window",
@@ -67,25 +65,6 @@ WidgetMetadata = {
           ],
         },
         {
-          name: "type",
-          title: "Type",
-          type: "enumeration",
-          enumOptions: [
-            {
-              title: "All",
-              value: "all",
-            },
-            {
-              title: "Movies",
-              value: "movie",
-            },
-            {
-              title: "TV Shows",
-              value: "tv",
-            },
-          ],
-        },
-        {
           name: "language",
           title: "Language",
           type: "language",
@@ -97,7 +76,6 @@ WidgetMetadata = {
       id: "popular",
       title: "Popular",
       functionName: "popular",
-      cacheDuration: 43200,
       params: [
         {
           name: "type",
@@ -135,7 +113,6 @@ WidgetMetadata = {
       id: "topRated",
       title: "Top Rated",
       functionName: "topRated",
-      cacheDuration: 43200,
       params: [
         {
           name: "type",
@@ -173,7 +150,6 @@ WidgetMetadata = {
       id: "categories",
       title: "Categories",
       functionName: "categories",
-      cacheDuration: 43200,
       params: [
         {
           name: "with_genres",
@@ -244,10 +220,6 @@ WidgetMetadata = {
           },
           enumOptions: [
             {
-              title: "All",
-              value: "all",
-            },
-            {
               title: "Movies",
               value: "movie",
             },
@@ -309,7 +281,7 @@ WidgetMetadata = {
       params: [
         {
           name: "with_networks",
-          title: "Networks",
+          title: "Network",
           type: "input",
           placeholders: [
             {
@@ -344,43 +316,22 @@ WidgetMetadata = {
         },
         {
           name: "page",
-          title: "page",
+          title: "Page",
           type: "page"
         },
         {
           name: "language",
-          title: "language",
+          title: "Language",
           type: "language",
           value: "en-US",
         },
       ],
     },
     {
-      id: "companies",
+      id: "comp companies",
       title: "Production Companies",
       functionName: "companies",
-      cacheDuration: 43200,
       params: [
-        {
-          name: "type",
-          title: "Type",
-          type: "enumeration",
-          value: "movie",
-          enumOptions: [
-            {
-              title: "All",
-              value: "all",
-            },
-            {
-              title: "Movies",
-              value: "movie",
-            },
-            {
-              title: "TV Shows",
-              value: "tv",
-            },
-          ],
-        },
         {
           name: "with_companies",
           title: "Company",
@@ -415,8 +366,8 @@ WidgetMetadata = {
               value: "25",
             },
             {
-              title: "Lionsgate",
-              value: "1632",
+              title: "Marvel Studios",
+              value: "420",
             },
           ]
         },
@@ -437,7 +388,6 @@ WidgetMetadata = {
       id: "list",
       title: "Lists",
       functionName: "list",
-      cacheDuration: 43200,
       params: [
         {
           name: "url",
@@ -457,7 +407,6 @@ WidgetMetadata = {
       id: "collections",
       title: "Collections",
       functionName: "collections",
-      cacheDuration: 43200,
       params: [
         {
           name: "collection_id",
@@ -549,7 +498,7 @@ async function nowPlaying(params) {
   if (type === "all") {
     const [movies, tv] = await Promise.all([
       fetchData("movie/now_playing", { ...params, type: "movie" }, "movie"),
-      fetchData("tv/on_the_air", { ...params, type: "tv" }, "tv"),
+      fetchData(" tv/on_the_air", { ...params, type: "tv" }, "tv"),
     ]);
 
     const result = [];
@@ -568,12 +517,10 @@ async function nowPlaying(params) {
 }
 
 async function trending(params) {
-  const type = params.type || "all";
-  const timeWindow = params.time_window || "day";
-  const api = `trending/${type}/${timeWindow}`;
-  delete params.type;
+  const timeWindow = params.time_window;
+  const api = `trending/all/${timeWindow}`;
   delete params.time_window;
-  return await fetchData(api, params, type === "all" ? null : type);
+  return await fetchData(api, params);
 }
 
 async function popular(params) {
@@ -626,39 +573,33 @@ async function topRated(params) {
 
 async function categories(params) {
   let genreId = params.with_genres;
-  const type = params.type;
-
-  if (type === "all") {
-    const [movies, tv] = await Promise.all([
-      categories({ ...params, type: "movie" }),
-      categories({ ...params, type: "tv" }),
-    ]);
-
-    const result = [];
-    for (let i = 0; i < Math.max(movies.length, tv.length); i++) {
-      if (movies[i]) result.push(movies[i]);
-      if (tv[i]) result.push(tv[i]);
-    }
-    return result;
-  }
-
+  let type = params.type;
   const onlyMovieGenreIds = ["28", "53"]; // Action, Thriller
   const onlyTvGenreIds = ["10762", "10764", "10766"]; // Kids, Reality, Soap
-  let fetchType = type;
-
-  if (genreId == "878" && fetchType == "tv") {
+  if (genreId == "878" && type == "tv") {
     genreId = "10765";
   }
   if (onlyMovieGenreIds.includes(genreId)) {
-    fetchType = "movie";
+    type = "movie";
   }
   if (onlyTvGenreIds.includes(genreId)) {
-    fetchType = "tv";
+    type = "tv";
   }
-  const api = `discover/${fetchType}`;
-  const fetchParams = { ...params, with_genres: genreId };
-  delete fetchParams.type;
-  return await fetchData(api, fetchParams, fetchType);
+  const api = `discover/${type}`;
+  params.with_genres = genreId;
+  delete params.type;
+  return await fetchData(api, params, type);
+}
+
+async function networks(params) {
+  let api = `discover/tv`;
+  return await fetchData(api, params, "tv");
+}
+
+async function companies(params) {
+  let api = `discover/movie`;
+  delete params.type;
+  return await fetchData(api, params, "movie");
 }
 
 async function collections(params) {
@@ -698,32 +639,6 @@ async function collections(params) {
   });
 }
 
-async function networks(params) {
-  let api = `discover/tv`;
-  return await fetchData(api, params, "tv");
-}
-
-async function companies(params) {
-  const type = params.type || "movie";
-  if (type === "all") {
-    const [movies, tv] = await Promise.all([
-      fetchData("discover/movie", { ...params, type: "movie" }, "movie"),
-      fetchData("discover/tv", { ...params, type: "tv" }, "tv"),
-    ]);
-
-    const result = [];
-    for (let i = 0; i < Math.max(movies.length, tv.length); i++) {
-      if (movies[i]) result.push(movies[i]);
-      if (tv[i]) result.push(tv[i]);
-    }
-    return result;
-  }
-
-  const api = `discover/${type}`;
-  delete params.type;
-  return await fetchData(api, params, type);
-}
-
 async function list(params = {}) {
   let url = params.url;
 
@@ -749,7 +664,6 @@ async function list(params = {}) {
   if (!response || !response.data) {
     throw new Error("Failed to get list data");
   }
-
 
   console.log("List page data length:", response.data.length);
   console.log("Starting parsing");
