@@ -371,7 +371,6 @@ WidgetMetadata = {
               value: "1632",
             },
             {
-            {
               title: "Marvel Studios",
               value: "420",
             },
