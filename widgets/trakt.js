@@ -382,7 +382,12 @@ async function loadRecommendations(params) {
         return await enrichWithTmdb(wrapped, mediaType);
     } catch (error) {
         console.error("Recommendations error:", error);
-        return [];
+        return [{
+            id: "error",
+            type: "text",
+            title: "Recommendations Failed",
+            description: `Error: ${error.message || JSON.stringify(error)}\n\nCheck: 1) Access token is valid 2) Client ID matches the app that created the token 3) Token has correct permissions`
+        }];
     }
 }
 
