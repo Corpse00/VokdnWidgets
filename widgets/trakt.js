@@ -303,11 +303,18 @@ async function authorize(params) {
 
 // Fetch TMDB details for rich metadata
 async function enrichWithTmdb(items, mediaType) {
+    if (!items || items.length === 0) {
+        return [];
+    }
+
     const enriched = await Promise.all(items.map(async (item) => {
-        const media = item.movie || item.show || item;
-        const type = item.movie ? "movie" : (item.show ? "tv" : mediaType);
+        // Trakt API returns different structures depending on the endpoint.
+        // We try to find the media object under 'movie', 'show', or as the item itself.
+        const media = item.movie || item.show || item.tv || item;
+        const type = item.movie ? "movie" : (item.show || item.tv ? "tv" : mediaType);
 
         if (!media?.ids?.tmdb) {
+            console.warn(`Item missing TMDB ID:`, JSON.stringify(item).substring(0, 100));
             return null;
         }
 
@@ -315,6 +322,8 @@ async function enrichWithTmdb(items, mediaType) {
             const tmdb = await Widget.tmdb.get(`/${type}/${media.ids.tmdb}`, {
                 params: { language: "en-US" }
             });
+
+            if (!tmdb) return null;
 
             const releaseDate = tmdb.release_date || tmdb.first_air_date || "";
             const year = releaseDate.substring(0, 4);
@@ -333,11 +342,22 @@ async function enrichWithTmdb(items, mediaType) {
                 genreTitle: year
             };
         } catch (e) {
+            console.error(`Failed to enrich item ${media.ids.tmdb}:`, e.message);
             return null;
         }
     }));
 
     return enriched.filter(Boolean);
+}
+
+// Simple text response for empty states
+function emptyState(title, description) {
+    return [{
+        id: "empty",
+        type: "text",
+        title: title || "No Content",
+        description: description || "No items found in this category."
+    }];
 }
 
 // Watchlist
@@ -357,9 +377,13 @@ async function loadWatchlist(params) {
         });
 
         const data = response.data || [];
-        const mediaType = type === "movies" ? "movie" : "tv";
+        if (data.length === 0) {
+            return emptyState("Watchlist is Empty", "You haven't added anything to your Trakt watchlist yet.");
+        }
 
-        return await enrichWithTmdb(data, mediaType);
+        // The watchlist API returns an array of objects where each object has a 'type' property
+        // and a property named after that type (e.g. {type: 'movie', movie: {...}})
+        return await enrichWithTmdb(data, "movie");
     } catch (error) {
         console.error("Watchlist error:", error);
         return [];
@@ -386,11 +410,11 @@ async function loadRecommendations(params) {
                 Widget.http.get(
                     `${API_BASE}/recommendations/movies?page=${page}&limit=${Math.ceil(limit / 2)}&extended=full`,
                     { headers: getHeaders(params) }
-                ),
+                ).catch(() => ({ data: [] })),
                 Widget.http.get(
                     `${API_BASE}/recommendations/shows?page=${page}&limit=${Math.floor(limit / 2)}&extended=full`,
                     { headers: getHeaders(params) }
-                )
+                ).catch(() => ({ data: [] }))
             ]);
 
             const movies = (moviesRes.data || []).map(item => ({ movie: item }));
@@ -404,6 +428,10 @@ async function loadRecommendations(params) {
                 if (shows[i]) interleaved.push(shows[i]);
             }
 
+            if (interleaved.length === 0) {
+                return emptyState("No Recommendations", "Trakt doesn't have any recommendations for you yet. Try watching and rating more content!");
+            }
+
             return await enrichWithTmdb(interleaved, "movie");
         } else {
             const response = await Widget.http.get(
@@ -412,11 +440,15 @@ async function loadRecommendations(params) {
             );
 
             const data = response.data || [];
+            if (data.length === 0) {
+                return emptyState(`No ${type === "movies" ? "Movie" : "Show"} Recommendations`);
+            }
+
             const mediaType = type === "movies" ? "movie" : "tv";
 
-            // Wrap items in expected format
+            // Wrap items in expected format (Trakt recommendations return items directly, not wrapped)
             const wrapped = data.map(item => ({
-                [mediaType]: item
+                [mediaType === "movie" ? "movie" : "show"]: item
             }));
 
             return await enrichWithTmdb(wrapped, mediaType);
@@ -450,8 +482,11 @@ async function loadCalendar(params) {
         });
 
         const data = response.data || [];
-        const tmdbType = mediaType === "movies" ? "movie" : "tv";
+        if (data.length === 0) {
+            return emptyState("Calendar is Empty", "No upcoming releases found for this period.");
+        }
 
+        const tmdbType = mediaType === "movies" ? "movie" : "tv";
         return await enrichWithTmdb(data, tmdbType);
     } catch (error) {
         console.error("Calendar error:", error);
@@ -476,9 +511,12 @@ async function loadHistory(params) {
         });
 
         const data = response.data || [];
-        const mediaType = type === "movies" ? "movie" : "tv";
+        if (data.length === 0) {
+            return emptyState("History is Empty", "You haven't watched anything yet.");
+        }
 
-        return await enrichWithTmdb(data, mediaType);
+        // History items have type and a property named after it
+        return await enrichWithTmdb(data, "movie");
     } catch (error) {
         console.error("History error:", error);
         return [];
@@ -497,8 +535,10 @@ async function loadTrending(params) {
         );
 
         const data = response.data || [];
-        const mediaType = type === "movies" ? "movie" : "tv";
+        if (data.length === 0) return [];
 
+        const mediaType = type === "movies" ? "movie" : "tv";
+        // Trending items are wrapped: [{ watch_count: 5, movie: {...} }]
         return await enrichWithTmdb(data, mediaType);
     } catch (error) {
         console.error("Trending error:", error);
@@ -518,11 +558,13 @@ async function loadPopular(params) {
         );
 
         const data = response.data || [];
+        if (data.length === 0) return [];
+
         const mediaType = type === "movies" ? "movie" : "tv";
 
-        // Wrap items in expected format
+        // Wrap items (Popular Trakt API returns raw items)
         const wrapped = data.map(item => ({
-            [mediaType]: item
+            [mediaType === "movie" ? "movie" : "show"]: item
         }));
 
         return await enrichWithTmdb(wrapped, mediaType);
