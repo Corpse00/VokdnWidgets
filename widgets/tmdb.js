@@ -309,26 +309,6 @@ WidgetMetadata = {
       cacheDuration: 43200,
       params: [
         {
-          name: "type",
-          title: "Type",
-          type: "enumeration",
-          value: "tv",
-          enumOptions: [
-            {
-              title: "All",
-              value: "all",
-            },
-            {
-              title: "Movies",
-              value: "movie",
-            },
-            {
-              title: "TV Shows",
-              value: "tv",
-            },
-          ],
-        },
-        {
           name: "with_networks",
           title: "Network",
           type: "input",
@@ -732,37 +712,21 @@ async function collections(params) {
 }
 
 async function networks(params) {
-  const type = params.type || "tv";
   const networkId = params.with_networks;
 
   // Bengali streaming services are Companies, not Networks in TMDB
   const bengaliCompanies = ["121059", "157210", "161019"];
   const isBengali = bengaliCompanies.includes(networkId);
 
-  if (type === "all") {
-    const [movies, tv] = await Promise.all([
-      networks({ ...params, type: "movie" }),
-      networks({ ...params, type: "tv" }),
-    ]);
-
-    const result = [];
-    for (let i = 0; i < Math.max(movies.length, tv.length); i++) {
-      if (movies[i]) result.push(movies[i]);
-      if (tv[i]) result.push(tv[i]);
-    }
-    return result;
-  }
-
-  const api = `discover/${type}`;
+  const api = `discover/tv`;
   const fetchParams = { ...params };
-  delete fetchParams.type;
 
   if (isBengali) {
     delete fetchParams.with_networks;
     fetchParams.with_companies = networkId;
   }
 
-  return await fetchData(api, fetchParams, type);
+  return await fetchData(api, fetchParams, "tv");
 }
 
 async function companies(params) {
