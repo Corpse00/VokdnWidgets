@@ -94,8 +94,8 @@ async function main() {
     // Process each file and extract metadata
     const widgetIndex = files.map(extractWidgetMetadata).filter(Boolean);
     const metadata = {
-      title: 'vokdn Widgets',
-      description: 'Media widgets by vokdn',
+      title: "Vokdn's Widgets",
+      description: "Premium media widgets by vokdn",
       icon: 'https://raw.githubusercontent.com/Corpse00/ForwardWidgets/master/icon.png',
       widgets: widgetIndex
     }

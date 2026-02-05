@@ -10,9 +10,9 @@
 
 </div>
 
-# ForwardWidget
+# Vokdn's Widgets
 
-ForwardWidget is a JS component for building modules that provides rich web-related functionality and data models.
+Vokdn's Widgets is a collection of JS components for building modules that provides rich web-related functionality and data models.
 
 ## Developing Custom Widgets
 
