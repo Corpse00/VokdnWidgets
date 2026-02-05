@@ -367,7 +367,7 @@ WidgetMetadata = {
             },
             {
               title: "Chorki",
-              value: "246792",
+              value: "157210",
             },
             {
               title: "Bongo",
@@ -735,7 +735,7 @@ async function networks(params) {
   const networkId = params.with_networks;
 
   // Bengali streaming services are Companies, not Networks in TMDB
-  const bengaliCompanies = ["121059", "246792", "161019"];
+  const bengaliCompanies = ["121059", "157210", "161019"];
   const isBengali = bengaliCompanies.includes(networkId);
 
   if (type === "all") {
