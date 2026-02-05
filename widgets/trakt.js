@@ -332,7 +332,7 @@ async function enrichWithTmdb(items, mediaType) {
         }
 
         try {
-            const tmdb = await Widget.tmdb.get(`/${type}/${media.ids.tmdb}`, {
+            const tmdb = await Widget.tmdb.get(`${type}/${media.ids.tmdb}`, {
                 params: { language: "en-US" }
             });
 

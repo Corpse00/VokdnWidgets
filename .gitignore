@@ -3,3 +3,5 @@ node_modules/
 temp_widgets/
 vokdn_credentials.txt
 test_widgets.js
+test_tmdb.js
+test_trakt.js

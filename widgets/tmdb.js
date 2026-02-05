@@ -490,6 +490,7 @@ WidgetMetadata = {
       id: "collections",
       title: "Collections",
       functionName: "collections",
+      cacheDuration: 43200,
       params: [
         {
           name: "collection_id",
