@@ -687,7 +687,6 @@ async function loadList(params) {
         );
 
         const data = response.data || [];
-        return [];
 
         return await enrichWithTmdb(data, type === "movies" ? "movie" : "tv");
     } catch (error) {
