@@ -283,6 +283,7 @@ WidgetMetadata = {
           name: "with_networks",
           title: "Network",
           type: "input",
+          value: "213",
           placeholders: [
             {
               title: "Netflix",
