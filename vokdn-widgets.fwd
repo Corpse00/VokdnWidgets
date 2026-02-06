@@ -1,7 +1,7 @@
 {
   "title": "Vokdn's Widgets",
   "description": "Premium widgets by Vokdn",
-  "icon": "https://raw.githubusercontent.com/Corpse00/ForwardWidgets/master/icon.png",
+  "icon": "https://raw.githubusercontent.com/Corpse00/VokdnWidgets/master/icon.png",
   "widgets": [
     {
       "id": "vokdn.tmdb",
@@ -10,7 +10,7 @@
       "requiredVersion": "0.0.1",
       "version": "1.0.0",
       "author": "Vokdn",
-      "url": "https://raw.githubusercontent.com/Corpse00/ForwardWidgets/master/widgets/tmdb.js"
+      "url": "https://raw.githubusercontent.com/Corpse00/VokdnWidgets/master/widgets/tmdb.js"
     },
     {
       "id": "vokdn.trakt",
@@ -19,7 +19,7 @@
       "requiredVersion": "0.0.1",
       "version": "1.0.0",
       "author": "Vokdn",
-      "url": "https://raw.githubusercontent.com/Corpse00/ForwardWidgets/master/widgets/trakt.js"
+      "url": "https://raw.githubusercontent.com/Corpse00/VokdnWidgets/master/widgets/trakt.js"
     }
   ]
 }

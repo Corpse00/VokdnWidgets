@@ -5,7 +5,7 @@ WidgetMetadata = {
   requiredVersion: "0.0.1",
   description: "Get TMDB data",
   author: "Vokdn",
-  site: "https://github.com/Corpse00/ForwardWidgets",
+  site: "https://github.com/Corpse00/VokdnWidgets",
   modules: [
     {
       id: "nowPlaying",

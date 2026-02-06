@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/Corpse00/ForwardWidgets/master/icon.png" width="120" height="120" alt="Vokdn's Widgets" />
+  <img src="https://raw.githubusercontent.com/Corpse00/VokdnWidgets/master/icon.png" width="120" height="120" alt="Vokdn's Widgets" />
 </p>
 
 <h1 align="center">Vokdn's Widgets</h1>
@@ -23,7 +23,7 @@
 Add the widget source URL in the Forward app:
 
 ```
-https://raw.githubusercontent.com/Corpse00/ForwardWidgets/master/forward-widgets.fwd
+https://raw.githubusercontent.com/Corpse00/VokdnWidgets/master/vokdn-widgets.fwd
 ```
 
 ---

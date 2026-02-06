@@ -3,7 +3,7 @@ const path = require('path');
 
 // Configure directory paths
 const WIDGETS_DIR = './widgets'; // Adjust to your widgets directory path
-const OUTPUT_FILE = './forward-widgets.fwd';
+const OUTPUT_FILE = './vokdn-widgets.fwd';
 
 // Create temp directory for preprocessed files
 const TEMP_DIR = path.join(__dirname, 'temp_widgets');
@@ -67,7 +67,7 @@ function extractWidgetMetadata(filePath) {
     // Extract required fields
     const { id, title, description, requiredVersion, version, author } = metadata;
 
-    const url = `https://raw.githubusercontent.com/Corpse00/ForwardWidgets/master/widgets/${fileName}`
+    const url = `https://raw.githubusercontent.com/Corpse00/VokdnWidgets/master/widgets/${fileName}`
 
     return { id, title, description, requiredVersion, version, author, url };
   } catch (error) {
@@ -96,7 +96,7 @@ async function main() {
     const metadata = {
       title: "Vokdn's Widgets",
       description: "Premium media widgets by vokdn",
-      icon: 'https://raw.githubusercontent.com/Corpse00/ForwardWidgets/master/icon.png',
+      icon: 'https://raw.githubusercontent.com/Corpse00/VokdnWidgets/master/icon.png',
       widgets: widgetIndex
     }
 
