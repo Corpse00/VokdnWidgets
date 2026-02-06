@@ -5,3 +5,7 @@ vokdn_credentials.txt
 test_widgets.js
 test_tmdb.js
 test_trakt.js
+test-tmdb.js
+check-collections.py
+search_collections.py
+Ofiicial/

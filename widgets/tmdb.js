@@ -50,6 +50,25 @@ WidgetMetadata = {
       functionName: "trending",
       params: [
         {
+          name: "type",
+          title: "Type",
+          type: "enumeration",
+          enumOptions: [
+            {
+              title: "All",
+              value: "all",
+            },
+            {
+              title: "Movies",
+              value: "movie",
+            },
+            {
+              title: "TV Shows",
+              value: "tv",
+            },
+          ],
+        },
+        {
           name: "time_window",
           title: "Time Window",
           type: "enumeration",
@@ -63,6 +82,11 @@ WidgetMetadata = {
               value: "week",
             },
           ],
+        },
+        {
+          name: "page",
+          title: "Page",
+          type: "page"
         },
         {
           name: "language",
@@ -97,15 +121,15 @@ WidgetMetadata = {
           ],
         },
         {
+          name: "page",
+          title: "Page",
+          type: "page",
+        },
+        {
           name: "language",
           title: "Language",
           type: "language",
           value: "en-US",
-        },
-        {
-          name: "page",
-          title: "Page",
-          type: "page",
         },
       ],
     },
@@ -518,9 +542,13 @@ async function fetchData(api, params, forceMediaType) {
 async function nowPlaying(params) {
   const type = params.type;
   if (type === "all") {
+    const movieParams = { ...params };
+    delete movieParams.type;
+    const tvParams = { ...params };
+    delete tvParams.type;
     const [movies, tv] = await Promise.all([
-      fetchData("movie/now_playing", { ...params, type: "movie" }, "movie"),
-      fetchData(" tv/on_the_air", { ...params, type: "tv" }, "tv"),
+      fetchData("movie/now_playing", movieParams, "movie"),
+      fetchData("tv/on_the_air", tvParams, "tv"),
     ]);
 
     const result = [];
@@ -535,22 +563,35 @@ async function nowPlaying(params) {
   if (type === "movie") {
     api = "movie/now_playing";
   }
+  delete params.type;
   return await fetchData(api, params, type);
 }
 
 async function trending(params) {
+  const type = params.type;
   const timeWindow = params.time_window;
-  const api = `trending/all/${timeWindow}`;
   delete params.time_window;
-  return await fetchData(api, params);
+  delete params.type;
+
+  if (type === "all") {
+    const api = `trending/all/${timeWindow}`;
+    return await fetchData(api, params);
+  }
+
+  const api = `trending/${type}/${timeWindow}`;
+  return await fetchData(api, params, type);
 }
 
 async function popular(params) {
   const type = params.type;
   if (type === "all") {
+    const movieParams = { ...params };
+    delete movieParams.type;
+    const tvParams = { ...params };
+    delete tvParams.type;
     const [movies, tv] = await Promise.all([
-      fetchData("movie/popular", { ...params, type: "movie" }, "movie"),
-      fetchData("tv/popular", { ...params, type: "tv" }, "tv"),
+      fetchData("movie/popular", movieParams, "movie"),
+      fetchData("tv/popular", tvParams, "tv"),
     ]);
 
     const result = [];
@@ -572,9 +613,13 @@ async function popular(params) {
 async function topRated(params) {
   const type = params.type;
   if (type === "all") {
+    const movieParams = { ...params };
+    delete movieParams.type;
+    const tvParams = { ...params };
+    delete tvParams.type;
     const [movies, tv] = await Promise.all([
-      fetchData("movie/top_rated", { ...params, type: "movie" }, "movie"),
-      fetchData("tv/top_rated", { ...params, type: "tv" }, "tv"),
+      fetchData("movie/top_rated", movieParams, "movie"),
+      fetchData("tv/top_rated", tvParams, "tv"),
     ]);
 
     const result = [];
@@ -614,9 +659,9 @@ async function categories(params) {
 }
 
 async function networks(params) {
-  let api = `discover/tv`;
+  const api = `discover/tv`;
   delete params.type;
-  return await fetchData(api, params);
+  return await fetchData(api, params, "tv");
 }
 
 async function companies(params) {
@@ -627,6 +672,7 @@ async function companies(params) {
 
 async function collections(params) {
   const id = params.collection_id;
+  delete params.collection_id;
   let items = [];
 
   // Use keyword discovery for MCU (86311) and DCEU (8028) to get full lists
