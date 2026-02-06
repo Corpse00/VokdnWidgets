@@ -217,6 +217,49 @@ WidgetMetadata = {
             ]
         },
         {
+            id: "myLists",
+            title: "My Lists",
+            functionName: "loadMyLists",
+            cacheDuration: 43200,
+            params: [
+                {
+                    name: "listSlug",
+                    title: "List",
+                    type: "input",
+                    description: "Your list slug (from URL). Leave empty to see all your lists.",
+                    placeholders: [
+                        { title: "favorites", value: "favorites" },
+                        { title: "watchlist", value: "watchlist" }
+                    ]
+                },
+                {
+                    name: "type",
+                    title: "Type",
+                    type: "enumeration",
+                    value: "all",
+                    enumOptions: [
+                        { title: "All", value: "all" },
+                        { title: "Movies", value: "movies" },
+                        { title: "TV Shows", value: "shows" }
+                    ]
+                },
+                {
+                    name: "sort",
+                    title: "Sort By",
+                    type: "enumeration",
+                    value: "rank",
+                    enumOptions: [
+                        { title: "Rank", value: "rank" },
+                        { title: "Date Added", value: "added" },
+                        { title: "Title", value: "title" },
+                        { title: "Release Date", value: "released" },
+                        { title: "Popularity", value: "popularity" }
+                    ]
+                },
+                { name: "page", title: "Page", type: "page" }
+            ]
+        },
+        {
             id: "lists",
             title: "Public Lists",
             functionName: "loadList",
@@ -671,6 +714,67 @@ async function loadPopular(params) {
         }
     } catch (error) {
         console.error("Popular error:", error);
+        return [];
+    }
+}
+
+// My Lists (requires OAuth)
+async function loadMyLists(params) {
+    const { listSlug, type = "all", sort = "rank", page = 1 } = params;
+    const limit = 20;
+
+    if (!params.accessToken) {
+        return [{
+            id: "error",
+            type: "text",
+            title: "Authentication Required",
+            description: "My Lists requires OAuth. Please enter your Client ID and Access Token in the Global Parameters."
+        }];
+    }
+
+    try {
+        // If no list slug provided, show all user's lists as text items
+        if (!listSlug) {
+            const response = await Widget.http.get(
+                `${API_BASE}/users/me/lists`,
+                { headers: getHeaders(params) }
+            );
+
+            const lists = response.data || [];
+            if (lists.length === 0) {
+                return emptyState("No Lists", "You haven't created any lists on Trakt yet.");
+            }
+
+            return lists.map(list => ({
+                id: list.ids?.slug || list.name,
+                type: "text",
+                title: list.name,
+                description: `${list.item_count} items • Slug: ${list.ids?.slug}\n${list.description || ""}`
+            }));
+        }
+
+        // Fetch items from a specific list
+        let endpoint = `/users/me/lists/${listSlug}/items`;
+        if (type !== "all") {
+            endpoint += `/${type === "movies" ? "movies" : "shows"}`;
+        }
+
+        const response = await Widget.http.get(
+            `${API_BASE}${endpoint}?page=${page}&limit=${limit}&sort=${sort}`,
+            { headers: getHeaders(params) }
+        );
+
+        const data = response.data || [];
+        if (data.length === 0) {
+            return emptyState("List is Empty", "This list has no items yet.");
+        }
+
+        return await enrichWithTmdb(data, type === "movies" ? "movie" : "tv");
+    } catch (error) {
+        console.error("My Lists error:", error);
+        if (error.message?.includes("404")) {
+            return emptyState("List Not Found", `No list found with slug "${listSlug}". Leave the field empty to see all your lists.`);
+        }
         return [];
     }
 }
