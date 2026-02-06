@@ -56,6 +56,38 @@ WidgetMetadata = {
             ]
         },
         {
+            id: "favorites",
+            title: "Favorites",
+            functionName: "loadFavorites",
+            cacheDuration: 43200,
+            params: [
+                {
+                    name: "type",
+                    title: "Type",
+                    type: "enumeration",
+                    value: "all",
+                    enumOptions: [
+                        { title: "All", value: "all" },
+                        { title: "Movies", value: "movies" },
+                        { title: "TV Shows", value: "shows" }
+                    ]
+                },
+                {
+                    name: "sort",
+                    title: "Sort By",
+                    type: "enumeration",
+                    value: "default",
+                    enumOptions: [
+                        { title: "Default", value: "default" },
+                        { title: "Rating", value: "rating" },
+                        { title: "Release Date", value: "release_date" },
+                        { title: "Title", value: "title" }
+                    ]
+                },
+                { name: "page", title: "Page", type: "page" }
+            ]
+        },
+        {
             id: "recommendations",
             title: "Recommendations",
             functionName: "loadRecommendations",
@@ -228,8 +260,8 @@ WidgetMetadata = {
                     type: "input",
                     description: "Your list slug (from URL). Leave empty to see all your lists.",
                     placeholders: [
-                        { title: "favorites", value: "favorites" },
-                        { title: "watchlist", value: "watchlist" }
+                        { title: "movies-recommendations-couchmoney-tv", value: "movies-recommendations-couchmoney-tv" },
+                        { title: "tv-recommendations-couchmoney-tv", value: "tv-recommendations-couchmoney-tv" }
                     ]
                 },
                 {
@@ -714,6 +746,72 @@ async function loadPopular(params) {
         }
     } catch (error) {
         console.error("Popular error:", error);
+        return [];
+    }
+}
+
+// Favorites (requires OAuth)
+async function loadFavorites(params) {
+    const { type, sort, page = 1 } = params;
+    const limit = 20;
+
+    if (!params.accessToken) {
+        return [{
+            id: "error",
+            type: "text",
+            title: "Authentication Required",
+            description: "Favorites requires OAuth. Please enter your Client ID and Access Token in the Global Parameters."
+        }];
+    }
+
+    try {
+        if (type === "all") {
+            const [moviesRes, showsRes] = await Promise.all([
+                Widget.http.get(
+                    `${API_BASE}/users/me/favorites/movies?page=${page}&limit=${Math.ceil(limit / 2)}`,
+                    { headers: getHeaders(params) }
+                ).catch(() => ({ data: [] })),
+                Widget.http.get(
+                    `${API_BASE}/users/me/favorites/shows?page=${page}&limit=${Math.floor(limit / 2)}`,
+                    { headers: getHeaders(params) }
+                ).catch(() => ({ data: [] }))
+            ]);
+
+            const movies = (moviesRes.data || []).map(item => ({ movie: item.movie || item }));
+            const shows = (showsRes.data || []).map(item => ({ show: item.show || item }));
+            const interleaved = [];
+            const max = Math.max(movies.length, shows.length);
+            for (let i = 0; i < max; i++) {
+                if (movies[i]) interleaved.push(movies[i]);
+                if (shows[i]) interleaved.push(shows[i]);
+            }
+
+            if (interleaved.length === 0) {
+                return emptyState("No Favorites", "You haven't added any favorites on Trakt yet.");
+            }
+
+            return sortResults(await enrichWithTmdb(interleaved, "movie"), sort);
+        } else {
+            const mediaType = type === "movies" ? "movies" : "shows";
+            const response = await Widget.http.get(
+                `${API_BASE}/users/me/favorites/${mediaType}?page=${page}&limit=${limit}`,
+                { headers: getHeaders(params) }
+            );
+
+            const data = response.data || [];
+            if (data.length === 0) {
+                return emptyState("No Favorites", `No favorite ${type === "movies" ? "movies" : "shows"} found.`);
+            }
+
+            const tmdbType = type === "movies" ? "movie" : "tv";
+            const wrapped = data.map(item => ({
+                [tmdbType === "movie" ? "movie" : "show"]: item.movie || item.show || item
+            }));
+
+            return sortResults(await enrichWithTmdb(wrapped, tmdbType), sort);
+        }
+    } catch (error) {
+        console.error("Favorites error:", error);
         return [];
     }
 }
