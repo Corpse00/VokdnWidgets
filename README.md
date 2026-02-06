@@ -1,332 +1,96 @@
 <p align="center">
-  <br>
-  <img width="150" src="./icon.png">
-  <br>
-  <br>
+  <img src="https://raw.githubusercontent.com/Corpse00/ForwardWidgets/master/icon.png" width="120" height="120" alt="Vokdn's Widgets" />
 </p>
 
-<div align=center>
-    
+<h1 align="center">Vokdn's Widgets</h1>
 
-</div>
+<p align="center">
+  <b>Premium media widgets for the Forward streaming app</b><br/>
+  <sub>Browse, discover, and track movies & TV shows — all from your home screen.</sub>
+</p>
 
-# Vokdn's Widgets
+<p align="center">
+  <img src="https://img.shields.io/badge/widgets-2-blue?style=flat-square" />
+  <img src="https://img.shields.io/badge/modules-18-green?style=flat-square" />
+  <img src="https://img.shields.io/badge/platform-Forward-purple?style=flat-square" />
+  <img src="https://img.shields.io/badge/license-MIT-orange?style=flat-square" />
+</p>
 
-Vokdn's Widgets is a collection of JS components for building modules that provides rich web-related functionality and data models.
+---
 
-## Developing Custom Widgets
+## Installation
 
-ForwardWidget supports extending functionality through JavaScript scripts. Each Widget is an independent JavaScript file that must follow specific structure and specifications.
+Add the widget source URL in the Forward app:
 
-### Widget Metadata Configuration
-
-Each Widget script must start with a `WidgetMetadata` object that defines the basic information and functional modules:
-
-```javascript
-var WidgetMetadata = {
-    id: "unique_id",                            // Widget unique identifier
-    title: "Widget Title",                      // Widget display title
-    description: "Description",                 // Widget description
-    author: "Author Name",                      // Author
-    site: "https://example.com",                // Website URL
-    version: "1.0.0",                           // Widget version
-    requiredVersion: "0.0.1",                   // Required ForwardWidget version
-    detailCacheDuration: 60,                    // Duration of detail data cache, unit: seconds. default: 60.
-    modules: [                                  // List of functional modules
-        {
-            title: "Module Title",              // Module title
-            description: "Description",         // Module description
-            requiresWebView: false,             // Whether WebView is required
-            functionName: "functionName",       // Handler function name
-            sectionMode: false,                 // Whether section mode is supported
-            cacheDuration: 3600,                  // module api cache duration, unit: seconds. default: 3600.
-            params: [                           // Parameter configuration
-                {
-                    name: "paramName",          // Parameter name
-                    title: "Param Title",       // Parameter display title
-                    type: "input",              // Parameter type input | constant | enumeration | count | page | offset
-                    description: "Description", // Parameter description
-                    value: "defaultValue",      // Default value
-                    belongTo: {                 // Triggered only when this condition is met
-                        paramName: "param name" // Sub-parameter of the parent parameter
-                        value: ["value"]        // Values contained in the parent parameter
-                    }
-                    placeholders: [             // Placeholder options
-                        {
-                            title: "Option Title",
-                            value: "optionValue"
-                        }
-                    ],
-                    enumOptions: [              // Enumeration options
-                        {
-                            title: "Option Title",
-                            value: "optionValue"
-                        }
-                    ]
-                }
-            ]
-        }
-    ],
-    search: {                   // Search function configuration (optional)
-        title: "Search",
-          functionName: "search",
-        params: [/* Search parameter configuration */]
-    }
-};
+```
+https://raw.githubusercontent.com/Corpse00/ForwardWidgets/master/forward-widgets.fwd
 ```
 
-### Parameter Type Description
+---
 
-Widget supports the following parameter types:
+## Widgets
 
-- `input`: Text input field
-- `count`: Number counter
-- `constant`: Constant value
-- `enumeration`: Enumeration selector
-- `page`: Page number selector
-- `offset`: Current Offset
+### TMDB
 
-### Handler Function Specification
+Full-featured widget powered by [The Movie Database](https://www.themoviedb.org/). Browse what's playing, discover by genre or studio, and explore franchise collections — with movie and TV support across every module.
 
-Each module needs to implement a corresponding handler function with the same name as `functionName`. The handler function receives a `params` object as a parameter containing all configured parameter values.
+| Module | Description |
+|---|---|
+| **Now Playing** | Currently in theaters & on the air. Filter by movies, TV, or both. |
+| **Trending** | What's trending today or this week across TMDB. |
+| **Popular** | Most popular titles right now. |
+| **Top Rated** | Highest rated movies & TV shows of all time. |
+| **Categories** | Discover by genre — Action, Sci-Fi, Horror, Drama, and more. Supports sort by popularity, rating, release date, revenue, and title. |
+| **Networks** | Browse by TV network — Netflix, HBO, Apple TV+, Disney+, Hulu, Prime Video, Peacock, Paramount+, and more. |
+| **Studios** | Browse by production studio — Marvel, Pixar, A24, Legendary, Warner Bros, Lionsgate, and 10 others. Sort by popularity, rating, release date, revenue, or title. |
+| **Lists** | Load any public TMDB list by its ID. |
+| **Collections** | 51 hand-picked mega-franchises including MCU, Star Wars, Harry Potter, DC, Fast & Furious, James Bond, and more. Includes both movies and TV shows where applicable. Sort by chronological order, newest first, rating, or title. |
 
-```javascript
-async function functionName(params = {}) {
-    try {
-        // 1. Parameter validation
-        if (!params.requiredParam) {
-            throw new Error("Missing required parameter");
-        }
+### Trakt
 
-        // 2. Send request
-        const response = await Widget.http.get(url, {
-            headers: {
-                "User-Agent": "Mozilla/5.0 ...",
-                "Referer": "https://example.com"
-            }
-        });
+Sync your [Trakt](https://trakt.tv/) account to access personalized watchlists, recommendations, viewing history, and community-curated lists. Requires a Trakt Client ID and Access Token.
 
-        // 3. Parse response
-        const docId = Widget.dom.parse(response.data);
-        const elements = Widget.dom.select(docId, "selector");
+| Module | Description |
+|---|---|
+| **Watchlist** | Your personal watchlist. Filter by type, sort by date added, title, release date, or rank. |
+| **Favorites** | Your favorited movies & shows on Trakt. Sort by default, title, release date, or rank. |
+| **Recommendations** | Personalized picks based on your watch history. |
+| **Calendar** | Upcoming episodes and movie releases on your calendar. Filter by type, lookback period. |
+| **History** | Your full watch history. Filter by type, sort by watched date, title, or release date. |
+| **Trending** | Trending right now across all Trakt users. Sort by watchers, title, or release date. |
+| **Popular** | Most popular on Trakt. Sort by title, release date, or default. |
+| **My Lists** | Your own Trakt lists. Paired movie/TV lists with a matching name are automatically merged into a single unified entry. |
+| **Public Lists** | Browse community-curated Trakt lists. Sort by popular, likes, comments, items, or recent. |
 
-        // 4. Return results
-        return elements.map(element => ({
-            id: "unique_id",
-            type: "type",
-            title: "title",
-            coverUrl: "url",
-            // ... other properties
-        }));
-    } catch (error) {
-        console.error("Processing failed:", error);
-        throw error;
-    }
-}
-```
+---
 
-### DOM Operation API
+## Features
 
-Widget has built-in cheerio for DOM parsing.
+- **All / Movies / TV Shows** — Type selector on every module for granular browsing
+- **Smart Sorting** — Sort by popularity, rating, release date, revenue, title, and more depending on the module
+- **51 Franchise Collections** — Curated mega-collections spanning movies and TV series, including MCU, Star Wars, The Batman Universe, Harry Potter, Lord of the Rings, and dozens more
+- **16 Major Studios** — One-tap access to content from Marvel Studios, Pixar, A24, Studio Ghibli, Legendary, and more
+- **13 TV Networks** — Browse by streaming platform or broadcast network
+- **Auto-Merge Paired Lists** — Trakt lists with matching movie/TV pairs are intelligently combined into a single browsable entry
+- **TMDB Enrichment** — Trakt items are enriched with full TMDB metadata including poster art, genres, and ratings
+- **Pagination** — Seamless page-by-page browsing on every module
+- **Language Support** — Region and language parameters where applicable
+- **Auth Checks** — Clear prompts when authentication is needed for protected Trakt endpoints
 
-```javascript
-// Get cheerio handle
-const $ = Widget.html.load(htmlContent);
-```
+---
 
-### HTTP Request API
+## Requirements
 
-Widget provides HTTP request API:
+- [Forward](https://apps.apple.com/app/id1462966582) app
+- Trakt account (for Trakt widget — [create one here](https://trakt.tv/join))
+- Trakt API application for Client ID & Access Token ([create one here](https://trakt.tv/oauth/applications))
 
-```javascript
-// options example
-// {
-//   allow_redirects: false
-//   headers: {
-//     "User-Agent": "Mozilla/5.0 ...",
-//     Referer: "https://example.com",
-//   },
-//   params: {
-//   }
-// }
+---
 
-// GET 请求
-const response = await Widget.http.get(url, options);
+## Credits
 
-// POST 请求
-const response = await Widget.http.post(url, body, options);
+Made by **vokdn**
 
-let data = response.data
-```
+Built on the [Forward Widget SDK](https://github.com/nicklama/forward-ern) by Johnil.
 
-### Loading Detail Data When Type is "link"
-
-```javascript
-async function loadDetail(link) {
-    // Must return an object containing videoUrl
-}
-```
-
-### Return Data Format
-
-Handler functions need to return an array of objects that conform to the ForwardWidget data model:
-
-```javascript
-// Video list item
-{
-    id: "unique_id",            // Based on the main value of different types. When type is url, it's the corresponding url. When type is douban, imdb, or tmdb, id is the corresponding id value. For tmdb id, it needs to be composed of type.id, e.g., tv.123 movie.234.
-    type: "type",               // Type identifier url, douban, imdb, tmdb
-    title: "title",             // Title
-    posterPath: "url",          // Vertical cover image URL
-    backdropPath: "url",        // Horizontal cover URL
-    releaseDate: "date",        // Release date
-    mediaType: "tv|movie",      // Media type
-    rating: "5",                // Rating
-    genreTitle: "genre",        // Genre
-    duration: 123,              // Duration number
-    durationText: "00:00",      // Duration text
-    previewUrl: "url",          // Preview video URL
-    videoUrl: "videoUrl",       // Video playback URL
-    link: "link",               // Detail page URL
-    episode: 1,                 // Episode number
-    description: "description", // Description
-    playerType: "system",       // player type system | app
-    childItems: [VideoItem]     // Nested items of current object, maximum one level
-}
-```
-
-### Best Practices
-
-1. **Error Handling**
-   - Use try-catch to catch exceptions
-   - Provide meaningful error messages
-   - Output debug information to console
-
-2. **Parameter Validation**
-   - Validate required parameters
-   - Validate parameter values
-   - Handle default values
-
-3. **Performance Optimization**
-   - Use appropriate request headers
-   - Cache frequently used data
-   - Optimize DOM selectors
-
-4. **Code Organization**
-   - Use clear function naming
-   - Add necessary comments
-   - Modularize processing logic
-
-### Danmu Segment Loading Process
-
-ForwardWidget supports danmu segment loading functionality, suitable for long video (such as anime, TV series) danmu systems. Danmu are organized by time segments, supporting on-demand loading to improve performance and user experience.
-
-#### Danmu Module Configuration
-
-When configuring danmu modules in `WidgetMetadata`, you need to specify `type: "danmu"`:
-
-```javascript
-modules: [
-  {
-    id: "searchDanmu",           // Search danmu module, id must be fixed
-    title: "Search Danmu",
-    functionName: "searchDanmu",
-    type: "danmu",               // Specify as danmu type
-    params: []
-  },
-  {
-    id: "getComments",           // Get danmu module, id must be fixed
-    title: "Get Danmu",
-    functionName: "getCommentsById",
-    type: "danmu",
-    params: []
-  },
-  {
-    id: "getDanmuWithSegmentTime", // Get danmu for specified time module
-    title: "Get Danmu for Specified Time",
-    functionName: "getDanmuWithSegmentTime",
-    type: "danmu",
-    params: []
-  }
-]
-```
-
-#### Danmu Parameter Description
-
-Danmu modules automatically carry the following parameters:
-
-- **Basic Parameters**:
-  - `tmdbId`: TMDB ID, used for local storage identification
-  - `type`: Video type (tv | movie)
-  - `title`: Search keywords
-  - `commentId`: Danmu ID, carried when actually loading after searching danmu list
-  - `animeId`: Anime ID, carried when actually loading after searching anime list
-
-- **Video Information Parameters**:
-  - `seriesName`: Series name
-  - `episodeName`: Episode name
-  - `airDate`: Air date
-  - `runtime`: Duration
-  - `premiereDate`: Premiere date
-  - `season`: Season number (empty for movies)
-  - `episode`: Episode number (empty for movies)
-  - `link`: Link
-  - `videoUrl`: Video link
-
-- **Time Parameters**:
-  - `segmentTime`: Specified time, used to get danmu for corresponding time point
-
-#### Danmu Loading Process
-
-Danmu loading process:
-
-1. **Search Danmu** (`searchDanmu`) - Search danmu resources based on video title
-2. **Get Danmu Data** (`getCommentsById`) - Get danmu segment information from server or use local cache
-3. **Time Point Matching** (`getDanmuWithSegmentTime`) - Find corresponding danmu based on playback time. Optional.
-
-For specific implementation code, see the `widgets/segmentDanmuExample.js` file.
-
-#### Danmu Response Format
-
-Built-in support for mainstream danmu data formats including JSON and XML. You can also customize the returned danmu format, but must follow these specifications:
-
-Format 1:
-```javascript
-[
-  {
-    p: "",// Time, position, color, and other attributes
-    m: "",
-    cid: "",
-  }
-]
-```
-
-Format 2:
-```javascript
-[
-  [
-    0,// Time
-    "0",// Position
-    "#fff",// Color
-    "",
-    "Content" // Danmu content
-  ]
-]
-```
-
-#### Best Practices
-
-1. **Local Caching**: Use `Widget.storage` to cache danmu segment information, avoiding duplicate requests
-2. **Segment Loading**: Load danmu for corresponding time segments on-demand based on playback progress
-3. **Error Handling**: Handle network request failures and danmu parsing exceptions
-4. **Format Support**: Built-in support for XML and JSON formats, supports zlib compression
-5. **Performance Optimization**: Avoid loading all danmu at once, reduce memory usage
-
-### Debugging
-
-The App has built-in module testing tools
-
-1. Use `console.log()` to output debug information
-2. Check network requests and responses
-3. Verify DOM parsing results
-4. Test different parameter combinations
+---
