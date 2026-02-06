@@ -258,10 +258,7 @@ WidgetMetadata = {
                     name: "listSlug",
                     title: "List",
                     type: "input",
-                    description: "Your list slug (from URL). Leave empty to see all your lists.",
-                    placeholders: [
-                        { title: "recommendations-couchmoney-tv", value: "recommendations-couchmoney-tv" }
-                    ]
+                    description: "Your list slug (from URL). Leave empty to see all your lists."
                 },
                 {
                     name: "type",
@@ -369,15 +366,17 @@ function getHeaders(params) {
 
 // Sort enriched results client-side
 function sortResults(items, sortBy) {
-    if (!sortBy || sortBy === "default") return items;
-    return items.sort((a, b) => {
+    if (!sortBy || sortBy === "default" || sortBy === "rank") return items;
+    return [...items].sort((a, b) => {
         if (sortBy === "rating") return (b.rating || 0) - (a.rating || 0);
-        if (sortBy === "release_date") {
+        if (sortBy === "release_date" || sortBy === "released") {
             const dateA = a.releaseDate ? new Date(a.releaseDate) : new Date(0);
             const dateB = b.releaseDate ? new Date(b.releaseDate) : new Date(0);
             return dateB - dateA;
         }
         if (sortBy === "title") return (a.title || "").localeCompare(b.title || "");
+        if (sortBy === "added") return 0; // preserve API order (already sorted by added)
+        if (sortBy === "popularity") return (b.rating || 0) - (a.rating || 0); // use rating as proxy
         return 0;
     });
 }
@@ -910,25 +909,25 @@ async function loadMyLists(params) {
 
             if (type === "movies") {
                 const res = await Widget.http.get(
-                    `${API_BASE}/users/me/lists/${movieSlug}/items?page=${page}&limit=${limit}&sort=${sort}`,
+                    `${API_BASE}/users/me/lists/${movieSlug}/items?page=${page}&limit=${limit}`,
                     { headers: getHeaders(params) }
                 );
-                return await enrichWithTmdb(res.data || [], "movie");
+                return sortResults(await enrichWithTmdb(res.data || [], "movie"), sort);
             } else if (type === "shows") {
                 const res = await Widget.http.get(
-                    `${API_BASE}/users/me/lists/${tvSlug}/items?page=${page}&limit=${limit}&sort=${sort}`,
+                    `${API_BASE}/users/me/lists/${tvSlug}/items?page=${page}&limit=${limit}`,
                     { headers: getHeaders(params) }
                 );
-                return await enrichWithTmdb(res.data || [], "tv");
+                return sortResults(await enrichWithTmdb(res.data || [], "tv"), sort);
             } else {
                 // All: fetch from both and interleave
                 const [moviesRes, tvRes] = await Promise.all([
                     Widget.http.get(
-                        `${API_BASE}/users/me/lists/${movieSlug}/items?page=${page}&limit=${halfLimit}&sort=${sort}`,
+                        `${API_BASE}/users/me/lists/${movieSlug}/items?page=${page}&limit=${halfLimit}`,
                         { headers: getHeaders(params) }
                     ).catch(() => ({ data: [] })),
                     Widget.http.get(
-                        `${API_BASE}/users/me/lists/${tvSlug}/items?page=${page}&limit=${halfLimit}&sort=${sort}`,
+                        `${API_BASE}/users/me/lists/${tvSlug}/items?page=${page}&limit=${halfLimit}`,
                         { headers: getHeaders(params) }
                     ).catch(() => ({ data: [] }))
                 ]);
@@ -946,7 +945,7 @@ async function loadMyLists(params) {
                     return emptyState("List is Empty", "This list has no items yet.");
                 }
 
-                return sortResults(await enrichWithTmdb(combined, "movie"), sort === "rank" ? "default" : sort);
+                return sortResults(await enrichWithTmdb(combined, "movie"), sort);
             }
         } else if (directMatch) {
             let endpoint = `/users/me/lists/${listSlug}/items`;
@@ -955,7 +954,7 @@ async function loadMyLists(params) {
             }
 
             const response = await Widget.http.get(
-                `${API_BASE}${endpoint}?page=${page}&limit=${limit}&sort=${sort}`,
+                `${API_BASE}${endpoint}?page=${page}&limit=${limit}`,
                 { headers: getHeaders(params) }
             );
 
@@ -964,7 +963,7 @@ async function loadMyLists(params) {
                 return emptyState("List is Empty", "This list has no items yet.");
             }
 
-            return await enrichWithTmdb(data, type === "movies" ? "movie" : "tv");
+            return sortResults(await enrichWithTmdb(data, type === "movies" ? "movie" : "tv"), sort);
         } else {
             return emptyState("List Not Found", `No list found with slug "${listSlug}". Leave the field empty to see all your lists.`);
         }
@@ -995,13 +994,13 @@ async function loadList(params) {
         }
 
         const response = await Widget.http.get(
-            `${API_BASE}${endpoint}?page=${page}&limit=${limit}&sort=${sort}`,
+            `${API_BASE}${endpoint}?page=${page}&limit=${limit}`,
             { headers: getHeaders(params) }
         );
 
         const data = response.data || [];
 
-        return await enrichWithTmdb(data, type === "movies" ? "movie" : "tv");
+        return sortResults(await enrichWithTmdb(data, type === "movies" ? "movie" : "tv"), sort);
     } catch (error) {
         console.error("List error:", error);
         return [];
