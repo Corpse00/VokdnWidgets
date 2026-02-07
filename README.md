@@ -76,7 +76,7 @@ Sync your [Trakt](https://trakt.tv/) account to access personalized watchlists, 
 - **Pagination** — Seamless page-by-page browsing on every module
 - **Language Support** — Region and language parameters where applicable
 - **Auth Checks** — Clear prompts when authentication is needed for protected Trakt endpoints
-- **Caching** — Trakt API responses are cached for 4 hours (14400 seconds) to improve performance and reduce API calls
+- **Caching** — API responses are cached for 4 hours (14400 seconds) to improve performance and reduce API calls
 
 ---
 
