@@ -325,7 +325,7 @@ WidgetMetadata = {
           ],
         },
         {
-          name: "with_networks",
+          name: "with_networks_us",
           title: "Network",
           type: "enumeration",
           belongTo: {
@@ -394,7 +394,7 @@ WidgetMetadata = {
           ],
         },
         {
-          name: "with_companies",
+          name: "with_companies_us",
           title: "Studio",
           type: "enumeration",
           belongTo: {
@@ -753,11 +753,14 @@ async function categories(params) {
 }
 
 async function networks(params) {
-  // Resolve country-specific network param
+  // Resolve country-specific network param into with_networks
   const country = params.country;
   if (country === "BD" && params.with_networks_bd) {
     params.with_networks = params.with_networks_bd;
+  } else if (params.with_networks_us) {
+    params.with_networks = params.with_networks_us;
   }
+  delete params.with_networks_us;
   delete params.with_networks_bd;
   delete params.country;
   const api = `discover/tv`;
@@ -770,7 +773,10 @@ async function companies(params) {
   const country = params.country;
   if (country === "BD" && params.with_companies_bd) {
     params.with_companies = params.with_companies_bd;
+  } else if (params.with_companies_us) {
+    params.with_companies = params.with_companies_us;
   }
+  delete params.with_companies_us;
   delete params.with_companies_bd;
   delete params.country;
 
