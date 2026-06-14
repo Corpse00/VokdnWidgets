@@ -316,39 +316,44 @@ WidgetMetadata = {
       functionName: "networks",
       params: [
         {
+          name: "country",
+          title: "Country",
+          type: "enumeration",
+          enumOptions: [
+            { title: "🇺🇸 USA", value: "US" },
+            { title: "🇧🇩 Bangladesh", value: "BD" },
+          ],
+        },
+        {
           name: "with_networks",
           title: "Network",
           type: "input",
           value: "213",
+          belongTo: {
+            paramName: "country",
+            value: ["US"],
+          },
           placeholders: [
-            {
-              title: "Netflix",
-              value: "213",
-            },
-            {
-              title: "Disney+",
-              value: "2739",
-            },
-            {
-              title: "Apple TV+",
-              value: "2552",
-            },
-            {
-              title: "HBO Max",
-              value: "3186",
-            },
-            {
-              title: "Hulu",
-              value: "453",
-            },
-            {
-              title: "Prime Video",
-              value: "1024",
-            },
-            {
-              title: "Paramount+",
-              value: "4330",
-            }
+            { title: "Netflix", value: "213" },
+            { title: "Disney+", value: "2739" },
+            { title: "Apple TV+", value: "2552" },
+            { title: "HBO Max", value: "3186" },
+            { title: "Hulu", value: "453" },
+            { title: "Prime Video", value: "1024" },
+            { title: "Paramount+", value: "4330" },
+          ],
+        },
+        {
+          name: "with_networks_bd",
+          title: "Network",
+          type: "enumeration",
+          belongTo: {
+            paramName: "country",
+            value: ["BD"],
+          },
+          enumOptions: [
+            { title: "hoichoi", value: "2139" },
+            { title: "Chorki", value: "5119" },
           ],
         },
         {
@@ -381,75 +386,55 @@ WidgetMetadata = {
       functionName: "companies",
       params: [
         {
+          name: "country",
+          title: "Country",
+          type: "enumeration",
+          enumOptions: [
+            { title: "🇺🇸 USA", value: "US" },
+            { title: "🇧🇩 Bangladesh", value: "BD" },
+          ],
+        },
+        {
           name: "with_companies",
           title: "Studio",
           type: "enumeration",
+          belongTo: {
+            paramName: "country",
+            value: ["US"],
+          },
           enumOptions: [
-            {
-              title: "Disney",
-              value: "2",
-            },
-            {
-              title: "Warner Bros.",
-              value: "174",
-            },
-            {
-              title: "Columbia Pictures",
-              value: "5",
-            },
-            {
-              title: "Sony Pictures",
-              value: "34",
-            },
-            {
-              title: "Universal Pictures",
-              value: "33",
-            },
-            {
-              title: "Paramount Pictures",
-              value: "4",
-            },
-            {
-              title: "20th Century Studios",
-              value: "25",
-            },
-            {
-              title: "Lionsgate",
-              value: "1632",
-            },
-            {
-              title: "Marvel Studios",
-              value: "420",
-            },
-            {
-              title: "DC Studios",
-              value: "128064",
-            },
-            {
-              title: "A24",
-              value: "41077",
-            },
-            {
-              title: "Pixar",
-              value: "3",
-            },
-            {
-              title: "DreamWorks",
-              value: "521",
-            },
-            {
-              title: "Lucasfilm",
-              value: "1",
-            },
-            {
-              title: "Illumination",
-              value: "6704",
-            },
-            {
-              title: "Blumhouse",
-              value: "3172",
-            },
-          ]
+            { title: "Disney", value: "2" },
+            { title: "Warner Bros.", value: "174" },
+            { title: "Columbia Pictures", value: "5" },
+            { title: "Sony Pictures", value: "34" },
+            { title: "Universal Pictures", value: "33" },
+            { title: "Paramount Pictures", value: "4" },
+            { title: "20th Century Studios", value: "25" },
+            { title: "Lionsgate", value: "1632" },
+            { title: "Marvel Studios", value: "420" },
+            { title: "DC Studios", value: "128064" },
+            { title: "A24", value: "41077" },
+            { title: "Pixar", value: "3" },
+            { title: "DreamWorks", value: "521" },
+            { title: "Lucasfilm", value: "1" },
+            { title: "Illumination", value: "6704" },
+            { title: "Blumhouse", value: "3172" },
+          ],
+        },
+        {
+          name: "with_companies_bd",
+          title: "Studio",
+          type: "enumeration",
+          belongTo: {
+            paramName: "country",
+            value: ["BD"],
+          },
+          enumOptions: [
+            { title: "Chorki", value: "157210" },
+            { title: "Impress Telefilm", value: "25376" },
+            { title: "Jaaz Multimedia", value: "24321" },
+            { title: "Hoichoi", value: "121059" },
+          ],
         },
         {
           name: "type",
@@ -769,12 +754,25 @@ async function categories(params) {
 }
 
 async function networks(params) {
+  // Resolve country-specific network param
+  if (params.with_networks_bd) {
+    params.with_networks = params.with_networks_bd;
+    delete params.with_networks_bd;
+  }
+  delete params.country;
   const api = `discover/tv`;
   delete params.type;
   return await fetchData(api, params, "tv");
 }
 
 async function companies(params) {
+  // Resolve country-specific company param
+  if (params.with_companies_bd) {
+    params.with_companies = params.with_companies_bd;
+    delete params.with_companies_bd;
+  }
+  delete params.country;
+
   const type = params.type;
   if (type === "all") {
     const movieParams = { ...params };
