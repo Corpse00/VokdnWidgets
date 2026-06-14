@@ -320,15 +320,14 @@ WidgetMetadata = {
           title: "Country",
           type: "enumeration",
           enumOptions: [
-            { title: "🇺🇸 USA", value: "US" },
-            { title: "🇧🇩 Bangladesh", value: "BD" },
+            { title: "USA", value: "US" },
+            { title: "Bangladesh", value: "BD" },
           ],
         },
         {
           name: "with_networks",
           title: "Network",
           type: "input",
-          value: "213",
           belongTo: {
             paramName: "country",
             value: ["US"],
@@ -390,8 +389,8 @@ WidgetMetadata = {
           title: "Country",
           type: "enumeration",
           enumOptions: [
-            { title: "🇺🇸 USA", value: "US" },
-            { title: "🇧🇩 Bangladesh", value: "BD" },
+            { title: "USA", value: "US" },
+            { title: "Bangladesh", value: "BD" },
           ],
         },
         {
@@ -755,10 +754,11 @@ async function categories(params) {
 
 async function networks(params) {
   // Resolve country-specific network param
-  if (params.with_networks_bd) {
+  const country = params.country;
+  if (country === "BD" && params.with_networks_bd) {
     params.with_networks = params.with_networks_bd;
-    delete params.with_networks_bd;
   }
+  delete params.with_networks_bd;
   delete params.country;
   const api = `discover/tv`;
   delete params.type;
@@ -767,10 +767,11 @@ async function networks(params) {
 
 async function companies(params) {
   // Resolve country-specific company param
-  if (params.with_companies_bd) {
+  const country = params.country;
+  if (country === "BD" && params.with_companies_bd) {
     params.with_companies = params.with_companies_bd;
-    delete params.with_companies_bd;
   }
+  delete params.with_companies_bd;
   delete params.country;
 
   const type = params.type;
