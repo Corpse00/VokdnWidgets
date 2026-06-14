@@ -327,12 +327,12 @@ WidgetMetadata = {
         {
           name: "with_networks",
           title: "Network",
-          type: "input",
+          type: "enumeration",
           belongTo: {
             paramName: "country",
             value: ["US"],
           },
-          placeholders: [
+          enumOptions: [
             { title: "Netflix", value: "213" },
             { title: "Disney+", value: "2739" },
             { title: "Apple TV+", value: "2552" },
