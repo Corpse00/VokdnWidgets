@@ -27,7 +27,7 @@ WidgetMetadata = {
             id: "watchlist",
             title: "Watchlist",
             functionName: "loadWatchlist",
-            cacheDuration: 43200,
+            cacheDuration: 14400,
             params: [
                 {
                     name: "type",
@@ -59,7 +59,7 @@ WidgetMetadata = {
             id: "recommendations",
             title: "Recommendations",
             functionName: "loadRecommendations",
-            cacheDuration: 43200,
+            cacheDuration: 14400,
             params: [
                 {
                     name: "type",
@@ -91,7 +91,7 @@ WidgetMetadata = {
             id: "calendar",
             title: "Calendar",
             functionName: "loadCalendar",
-            cacheDuration: 43200,
+            cacheDuration: 14400,
             params: [
                 {
                     name: "type",
@@ -124,7 +124,7 @@ WidgetMetadata = {
             id: "history",
             title: "History",
             functionName: "loadHistory",
-            cacheDuration: 43200,
+            cacheDuration: 14400,
             params: [
                 {
                     name: "type",
@@ -156,7 +156,7 @@ WidgetMetadata = {
             id: "trending",
             title: "Trending",
             functionName: "loadTrending",
-            cacheDuration: 43200,
+            cacheDuration: 14400,
             params: [
                 {
                     name: "type",
@@ -188,7 +188,7 @@ WidgetMetadata = {
             id: "popular",
             title: "Popular",
             functionName: "loadPopular",
-            cacheDuration: 43200,
+            cacheDuration: 14400,
             params: [
                 {
                     name: "type",
@@ -220,7 +220,7 @@ WidgetMetadata = {
             id: "lists",
             title: "Public Lists",
             functionName: "loadList",
-            cacheDuration: 43200,
+            cacheDuration: 14400,
             params: [
                 {
                     name: "username",
